@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Jekyll Markdown
-date: 2022-10-15
+date: 2022-10-02
 categories: ["jekyll", "Test Post", "first post"]
 ---
 
