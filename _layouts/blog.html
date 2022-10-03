@@ -6,7 +6,7 @@
       {% include header.html %} {% include bio.html %}
       <section class="articles">
         {% for post in site.posts %}
-        <a href="{{site.baseurl}}{{post.url}}">
+        <a href="{{site.baseurl}}{{post.url}}" style="text-decoration: none;">
         <article class="article">
           <h2 class="article-title">
              {{post.title}} 
