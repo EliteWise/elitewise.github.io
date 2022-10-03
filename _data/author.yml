@@ -6,18 +6,12 @@ description: "
   </p>
   <br/>
   <p>
-    Check my GitHub <a href='https://github.com/elitewise' target='_blank'>Github</a>
+    Check my <a href='https://github.com/elitewise' target='_blank'>Github</a>
   </P>
 "
-email: dev_sharad@outlook.com
+email: florent.mogenet@gmail.com
 contact:
-  - title: linkedin
-    url: https://www.linkedin.com/in/srsmaurya
   - title: github
     url: https://github.com/sharadcodes
-  - title: twitter
-    url: https://twitter.com/iamsharadraj
-  - title: dev
-    url: https://dev.to/sharadcodes
   - title: email
-    url: mailto:dev_sharad@outlook.com
+    url: mailto:florent.mogenet@gmail.com
