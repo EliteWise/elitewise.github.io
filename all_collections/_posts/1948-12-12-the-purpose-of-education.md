@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Chrome Extension
+title: Url Checker
 date: 2022-10-03
 categories: [Chrome Extension, NodeJs, JavaScript]
 ---
