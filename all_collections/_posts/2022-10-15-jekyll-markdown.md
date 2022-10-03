@@ -1,8 +1,8 @@
 ---
 layout: post
-title: Jekyll Markdown
+title: Cypress
 date: 2022-10-02
-categories: ["jekyll", "Test Post", "first post"]
+categories: ["Cypress", "Automation Testing", "NodeJs", "JavaScript"]
 ---
 
 Presentation in progress...
