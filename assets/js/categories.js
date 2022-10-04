@@ -34,5 +34,6 @@ window.onload = function () {
 };
 
 function sayHello(test) {
-   console.log("Hello " + test);
+   var a = test.getElementsByTagName('a')[0].href;
+   console.log("Hello " + a);
  }
