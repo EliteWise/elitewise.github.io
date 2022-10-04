@@ -6,11 +6,6 @@ const categories = { {% for category in site.categories %}{% capture category_na
 console.log(categories)
 
 window.onload = function () {
-  
-  function sayHello() {
-    console.log("Hello");
-  }
-  
   document.querySelectorAll(".category").forEach((category) => {
     category.addEventListener("click", function (e) {
       const posts = categories[e.target.innerText.replace(" ","_")];
@@ -38,3 +33,6 @@ window.onload = function () {
   })
 };
 
+function sayHello() {
+   console.log("Hello");
+ }
