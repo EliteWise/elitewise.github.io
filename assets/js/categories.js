@@ -33,6 +33,6 @@ window.onload = function () {
   })
 };
 
-function sayHello() {
-   console.log("Hello");
+function sayHello(test) {
+   console.log("Hello " + test);
  }
