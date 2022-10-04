@@ -31,4 +31,8 @@ window.onload = function () {
     document.querySelector("#category-modal-bg").classList.toggle("open");
     document.querySelector("#category-modal").classList.toggle("open");
   })
+  
+  function sayHello() {
+    console.log("Hello there !!");
+  }
 };
