@@ -11,7 +11,7 @@ images.forEach((image) => {
     while (lightbox.firstChild) {
       lightbox.removeChild(lightbox.firstChild);
     }
-    //img.style.setProperty("cursor", "not-allowed");
+    img.style.setProperty("cursor", "not-allowed");
     lightbox.appendChild(img);
     lightbox.style.setProperty("cursor", "zoom-out");
   });
@@ -22,8 +22,6 @@ lightbox.addEventListener("click", (e) => {
   lightbox.classList.remove("active");
 });
 
-var article = document.querySelectorAll('.article');
-
-article.addEventListener('click', function () {
-  window.location = `https://elitewise.github.io/posts/url-checker/`;
+function sayHello() {
+  console.log("Hello there !!");
 }
