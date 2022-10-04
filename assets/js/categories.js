@@ -33,8 +33,8 @@ window.onload = function () {
   })
 };
 
-function postRedirect(test) {
-  console.log('Target: ' + test.target);
-   var link = test.getElementsByTagName('a')[0].href;
+function postRedirect(element, event) {
+  if(event.target.className == "categories") return;
+   var link = element.getElementsByTagName('a')[0].href;
    window.location.replace(link);
  }
