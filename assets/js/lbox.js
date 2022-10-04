@@ -21,3 +21,9 @@ lightbox.addEventListener("click", (e) => {
   if (e.target !== e.currentTarget) return;
   lightbox.classList.remove("active");
 });
+
+var article = document.querySelectorAll('.article');
+
+article.addEventListener('click', function () {
+  window.location = `https://elitewise.github.io/posts/url-checker/`;
+}
