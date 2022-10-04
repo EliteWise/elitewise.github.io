@@ -33,7 +33,7 @@ window.onload = function () {
   })
 };
 
-function sayHello(test) {
+function postRedirect(test) {
    var link = test.getElementsByTagName('a')[0].href;
-   window.location.replace(a);
+   window.location.replace(link);
  }
