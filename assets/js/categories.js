@@ -33,13 +33,7 @@ window.onload = function () {
   })
 };
 
-function postRedirect(element, event) {
-  document.addEventListener('click', function(e) {
-    e = e || window.event;
-    var target = e.target || e.srcElement,
-        text = target.textContent || target.innerText;
-    if(target.className == "categories") return;
-    var link = element.getElementsByTagName('a')[0].href;
-    window.location.replace(link);
-  }, false);
-}
+function postRedirect(element) {
+   var link = element.getElementsByTagName('a')[0].href;
+   window.location.replace(link);
+ }
