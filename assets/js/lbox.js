@@ -21,7 +21,3 @@ lightbox.addEventListener("click", (e) => {
   if (e.target !== e.currentTarget) return;
   lightbox.classList.remove("active");
 });
-
-function sayHello() {
-  console.log("Hello there !!");
-}
