@@ -37,3 +37,4 @@ window.onload = function () {
     document.querySelector("#category-modal").classList.toggle("open");
   })
 };
+
