@@ -1,8 +1,8 @@
 ---
 layout: post
-title: Setup Appium with Android Emulator
+title: Appium - Android Emulator
 date: 2023-09-08
-categories: ["Appium", "Automation Testing", "Selenium", "Python"]
+categories: ["Appium", "Automation Testing", "Selenium"]
 ---
 
 Presentation in progress...
