@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Browsing Fortress Extension
+title: Browsing Fortress Privacy Policy
 date: 2022-10-03
 categories: [Chrome Extension, Security, NodeJs]
 ---
