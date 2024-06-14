@@ -5,8 +5,6 @@ date: 2024-10-15
 categories: ["Golang", "Mutex"]
 ---
 
-# Golang Mutex — Lock and Unlock
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
