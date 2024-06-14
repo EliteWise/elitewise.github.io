@@ -1,11 +1,9 @@
 ---
 layout: post
-title: Appium - Android Emulator
+title: Appium — Setup mobile tests on windows with Python
 date: 2023-09-08
 categories: ["Appium", "Automation Testing", "Selenium"]
 ---
-
-# Appium — Setup mobile tests on windows with Python
 
 <!DOCTYPE html>
 <html lang="en">
