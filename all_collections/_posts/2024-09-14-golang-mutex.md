@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Golang Mutex — Lock and Unlock
-date: 2024-10-14
+date: 2024-10-09
 categories: ["Golang", "Mutex"]
 ---
 
