@@ -1,7 +1,7 @@
 ---
 layout: post
 title: No Man's Sky - Autobackup
-date: 2023-12-28
+date: 2024-04-13
 categories: ["PowerShell", "Script", "NMS"]
 ---
 
