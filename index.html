@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Void Guess — Guess it. Or vanish.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --void: #0a0a0f;
+    --surface: #12121a;
+    --primary: #6c63ff;
+    --primary-border: rgba(108,99,255,0.25);
+    --hint: #ffc107;
+    --text: #ffffff;
+    --muted: #5a5a72;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--void); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+  #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.5; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1; opacity: 0.3; }
+  .content { position: relative; z-index: 2; }
+
+  /* NAV */
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 48px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .nav-logo { font-family: var(--mono); font-size: 13px; letter-spacing: 3px; color: var(--primary); text-decoration: none; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--muted); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero { min-height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 80px 24px; }
+  .hero-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 4px; color: var(--primary); text-transform: uppercase; margin-bottom: 32px; opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards; }
+  .hero-title { font-family: var(--mono); font-size: clamp(64px, 12vw, 140px); font-weight: 700; line-height: 0.9; letter-spacing: -2px; margin-bottom: 48px; opacity: 0; animation: fadeUp 0.8s ease 0.4s forwards; }
+  .hero-title .void { color: var(--primary); display: block; }
+  .hero-title .guess { color: var(--text); display: block; }
+  .hero-desc { font-size: 17px; color: rgba(255,255,255,0.45); max-width: 480px; line-height: 1.8; margin-bottom: 56px; opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards; font-weight: 400; }
+  .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: 1.5px; text-decoration: none; text-transform: uppercase; transition: all 0.2s; cursor: pointer; border: none; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #7c74ff; transform: translateY(-2px); }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--primary-border); }
+  .btn-secondary:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--primary-border), transparent); }
+
+  /* DEMO */
+  .demo { padding: 100px 24px; display: flex; flex-direction: column; align-items: center; gap: 64px; }
+  .section-label { font-family: var(--mono); font-size: 11px; letter-spacing: 4px; color: var(--primary); text-transform: uppercase; text-align: center; }
+  .phone-mockup { width: 280px; background: var(--surface); border-radius: 36px; border: 1px solid rgba(255,255,255,0.06); padding: 32px 20px; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(108,99,255,0.1); }
+  .mock-header { display: flex; justify-content: space-between; align-items: center; }
+  .mock-counter { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .mock-timer { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--hint); }
+  .mock-score { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--primary); }
+  .mock-letters { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 16px 0; }
+  .mock-letter { width: 26px; height: 34px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; border-bottom: 2px solid var(--muted); font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); }
+  .mock-letter.revealed { border-bottom-color: var(--primary); }
+  .mock-letter.space { border-bottom: none; width: 12px; }
+  .mock-input { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px 14px; font-family: var(--mono); font-size: 11px; color: var(--muted); border: 1px solid rgba(255,255,255,0.06); }
+  .mock-hint { font-family: var(--mono); font-size: 10px; color: var(--hint); text-align: center; opacity: 0.7; }
+
+  /* FEATURES */
+  .features { padding: 80px 24px 100px; max-width: 900px; margin: 0 auto; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 48px; }
+  .feature-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 28px; transition: border-color 0.2s; }
+  .feature-card:hover { border-color: var(--primary-border); }
+  .feature-icon { width: 36px; height: 36px; margin-bottom: 18px; color: var(--primary); display: block; opacity: 0.9; }
+  .feature-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.65; font-family: var(--mono); }
+
+  /* DOWNLOAD */
+  .download { padding: 100px 24px; display: flex; flex-direction: column; align-items: center; gap: 48px; text-align: center; }
+  .download h2 { font-family: var(--mono); font-size: clamp(28px, 4vw, 48px); font-weight: 700; line-height: 1.2; letter-spacing: -1px; }
+  .download h2 span { color: var(--primary); }
+  .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; max-width: 700px; }
+  .download-card { background: var(--surface); border: 1px solid var(--primary-border); border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; transition: all 0.2s; }
+  .download-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+  .download-card.coming-soon { border-color: rgba(255,255,255,0.06); opacity: 0.5; }
+  .download-card.coming-soon:hover { transform: none; border-color: rgba(255,255,255,0.06); }
+  .download-platform { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .download-name { font-size: 18px; font-weight: 700; }
+  .download-info { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .coming-badge { display: inline-block; background: rgba(255,255,255,0.06); border-radius: 6px; padding: 4px 10px; font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid rgba(255,255,255,0.04); padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-left { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .footer-left a { color: var(--primary); text-decoration: none; }
+  .footer-right { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    footer { flex-direction: column; text-align: center; padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div class="content">
+
+  <nav>
+    <a href="#" class="nav-logo">VOID GUESS</a>
+    <ul class="nav-links">
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#download">Download</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <p class="hero-eyebrow">Video Games · Movies · Quiz</p>
+    <h1 class="hero-title">
+      <span class="void">VOID</span>
+      <span class="guess">GUESS</span>
+    </h1>
+    <p class="hero-desc">Letters. A timer. Guess the title before the void takes it away.</p>
+    <div class="hero-cta">
+      <a href="#download" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
+      <a href="#demo" class="btn btn-secondary">See the game</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="demo" id="demo">
+    <p class="section-label">Preview</p>
+    <div class="phone-mockup">
+      <div class="mock-header">
+        <span class="mock-score">750 pts</span>
+        <span class="mock-counter">3 / 5</span>
+        <span class="mock-timer">8s</span>
+      </div>
+      <div class="mock-letters">
+        <div class="mock-letter revealed">E</div>
+        <div class="mock-letter">_</div>
+        <div class="mock-letter revealed">D</div>
+        <div class="mock-letter">_</div>
+        <div class="mock-letter">_</div>
+        <div class="mock-letter space"></div>
+        <div class="mock-letter revealed">R</div>
+        <div class="mock-letter">_</div>
+        <div class="mock-letter">_</div>
+        <div class="mock-letter">_</div>
+        <div class="mock-letter revealed">G</div>
+      </div>
+      <div class="mock-input">Guess the title...</div>
+      <div class="mock-hint">⚡ Hint — release year (÷2 score)</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="features" id="features">
+    <p class="section-label">Why play</p>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01M8 12h.01M16 12h.01"/><path d="M6 9v6M18 9v6"/>
+        </svg>
+        <p class="feature-title">Games & Movies</p>
+        <p class="feature-desc">150+ video games and 150+ movies to guess. From Minecraft to Parasite.</p>
+      </div>
+
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <p class="feature-title">4 game modes</p>
+        <p class="feature-desc">Quick or Full run. Normal or Hardcore — one mistake and it's over.</p>
+      </div>
+
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <p class="feature-title">Achievements & Stats</p>
+        <p class="feature-desc">Track your performance, unlock achievements, beat your records.</p>
+      </div>
+
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <p class="feature-title">Hardcore mode</p>
+        <p class="feature-desc">One wrong answer. Run over. No second chances.</p>
+      </div>
+
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+        <p class="feature-title">Multi-platform</p>
+        <p class="feature-desc">Android, iOS, Windows and Linux. Everywhere, anytime.</p>
+      </div>
+
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <p class="feature-title">100% local</p>
+        <p class="feature-desc">No account, no server. Your data stays on your device.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="download" id="download">
+    <p class="section-label">Download</p>
+    <h2>Ready to enter<br>the <span>void</span>?</h2>
+    <div class="download-grid">
+      <div class="download-card">
+        <p class="download-platform">Desktop</p>
+        <p class="download-name">Windows</p>
+        <p class="download-info">.zip — 64bit</p>
+        <a href="https://github.com/EliteWise/voidguess/releases/latest/download/voidguess-windows.zip" class="btn btn-primary" style="justify-content:center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="download-card">
+        <p class="download-platform">Desktop</p>
+        <p class="download-name">Linux</p>
+        <p class="download-info">.zip — x64</p>
+        <a href="https://github.com/EliteWise/voidguess/releases/latest/download/voidguess-linux.zip" class="btn btn-primary" style="justify-content:center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="download-card coming-soon">
+        <p class="download-platform">Mobile</p>
+        <p class="download-name">Android</p>
+        <p class="download-info">Google Play Store</p>
+        <span class="coming-badge">Coming soon</span>
+      </div>
+      <div class="download-card coming-soon">
+        <p class="download-platform">Mobile</p>
+        <p class="download-name">iOS</p>
+        <p class="download-info">App Store</p>
+        <span class="coming-badge">Coming soon</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="footer-left">Built with Flutter · <a href="https://github.com/EliteWise/voidguess" target="_blank">GitHub</a></p>
+    <p class="footer-right">© 2025 Void Guess</p>
+  </footer>
+
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const chars = ['_','?','A','Z','E','R','X','Q','_','?','V','O','I','D'];
+const particles = [];
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+function createParticle() {
+  return { x: Math.random() * canvas.width, y: canvas.height + 20, char: chars[Math.floor(Math.random() * chars.length)], speed: 0.3 + Math.random() * 0.5, opacity: 0, maxOpacity: 0.06 + Math.random() * 0.12, size: 11 + Math.random() * 8 };
+}
+for (let i = 0; i < 18; i++) { const p = createParticle(); p.y = Math.random() * canvas.height; p.opacity = p.maxOpacity * Math.random(); particles.push(p); }
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p, i) => {
+    p.y -= p.speed;
+    if (p.y < canvas.height * 0.7) p.opacity = Math.min(p.opacity + 0.002, p.maxOpacity);
+    if (p.y < canvas.height * 0.2) p.opacity -= 0.003;
+    if (p.y < -20 || p.opacity <= 0) { particles[i] = createParticle(); return; }
+    ctx.save(); ctx.globalAlpha = Math.max(0, p.opacity); ctx.fillStyle = '#6c63ff';
+    ctx.font = `bold ${p.size}px 'Space Mono', monospace`; ctx.fillText(p.char, p.x, p.y); ctx.restore();
+  });
+  requestAnimationFrame(animate);
+}
+resize(); window.addEventListener('resize', resize); animate();
+</script>
+</body>
+</html>
